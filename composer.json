@@ -1,0 +1,45 @@
+{
+    "name": "ryoluo/sail-ssl",
+    "description": "Laravel Sail plugin to enable SSL (HTTPS) connection with Nginx.",
+    "keywords": [
+        "laravel",
+        "sail",
+        "docker",
+        "ssl",
+        "nginx"
+    ],
+    "license": "MIT",
+    "support": {
+        "issues": "https://github.com/ryoluo/sail-ssl/issues",
+        "source": "https://github.com/ryoluo/sail-ssl"
+    },
+    "authors": [
+        {
+            "name": "Ryo Kobayashi",
+            "email": "ryoluo@lotus-base.com"
+        }
+    ],
+    "require": {
+        "php": "^7.3|^8.0",
+        "illuminate/console": "^8.0|^9.0",
+        "illuminate/contracts": "^8.0|^9.0",
+        "illuminate/support": "^8.0|^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Ryoluo\\SailSsl\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Ryoluo\\SailSsl\\SailSslServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

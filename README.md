@@ -24,6 +24,8 @@ php artisan sail-ssl:install
 ./vendor/bin/sail up
 ```
 
+Access https://localhost.
+
 ## Configure Nginx
 `./nginx/templates/default.conf.template` will be published.
 ```sh

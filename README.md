@@ -1,6 +1,7 @@
 # 🚢 Sail-SSL
 
-![License-MIT](https://img.shields.io/github/license/ryoluo/sail-ssl)
+![Version](https://img.shields.io/github/v/release/ryoluo/sail-ssl)
+![License](https://img.shields.io/github/license/ryoluo/sail-ssl)
 
 Laravel Sail plugin to enable SSL (HTTPS) connection with Nginx.
 
@@ -23,7 +24,7 @@ php artisan sail-ssl:install
 ./vendor/bin/sail up
 ```
 
-## Configure nginx.conf
+## Configure Nginx
 `./nginx/templates/default.conf.template` will be published.
 ```sh
 php artisan sail-ssl:publish

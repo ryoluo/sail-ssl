@@ -24,7 +24,7 @@ php artisan sail-ssl:install
 ./vendor/bin/sail up
 ```
 
-Access https://localhost.
+After containers started, you can access https://localhost.
 
 ## Configure Nginx
 `./nginx/templates/default.conf.template` will be published.

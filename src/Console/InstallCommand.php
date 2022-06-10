@@ -3,7 +3,6 @@
 namespace Ryoluo\SailSsl\Console;
 
 use Illuminate\Console\Command;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class InstallCommand extends Command
 {
@@ -28,9 +27,6 @@ class InstallCommand extends Command
     public function handle()
     {
         $dockerCompose = file_get_contents($this->laravel->basePath('docker-compose.yml'));
-        if (!$dockerCompose) {
-            throw new FileNotFoundException('File "docker-compose.yml" not found.');
-        }
         if (str_contains($dockerCompose, 'nginx:')) {
             $this->info('Nginx container is already installed. Do nothing.');
             return;

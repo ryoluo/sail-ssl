@@ -27,7 +27,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Ryoluo\\SailSsl\\": "src/"
+            "Ryoluo\\SailSsl\\": "src/",
+            "Ryoluo\\SailSsl\\Tests\\": "tests/"
         }
     },
     "extra": {
@@ -41,5 +42,10 @@
         "sort-packages": true
     },
     "minimum-stability": "dev",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "require-dev": {
+        "laravel/sail": "^1.14",
+        "orchestra/testbench": "^7.5",
+        "phpunit/phpunit": "^9.5"
+    }
 }

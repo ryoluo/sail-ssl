@@ -27,7 +27,11 @@
     },
     "autoload": {
         "psr-4": {
-            "Ryoluo\\SailSsl\\": "src/",
+            "Ryoluo\\SailSsl\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
             "Ryoluo\\SailSsl\\Tests\\": "tests/"
         }
     },

@@ -2,6 +2,7 @@
 
 ![Version](https://img.shields.io/github/v/release/ryoluo/sail-ssl)
 ![License](https://img.shields.io/github/license/ryoluo/sail-ssl)
+![Test](https://img.shields.io/github/workflow/status/ryoluo/sail-ssl/Laravel?label=test)
 
 Laravel Sail plugin to enable SSL (HTTPS) connection with Nginx.
 

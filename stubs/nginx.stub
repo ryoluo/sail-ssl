@@ -5,11 +5,13 @@
             - '${SSL_PORT:-443}:443'
         environment:
             - SSL_PORT=${SSL_PORT:-443}
+            - APP_SERVICE=${APP_SERVICE:-laravel.test}
+            - SERVER_NAME=${SERVER_NAME:-localhost}
         volumes:
             - 'sail-nginx:/etc/nginx/certs'
             - './vendor/ryoluo/sail-ssl/nginx/templates:/etc/nginx/templates'
             - './vendor/ryoluo/sail-ssl/nginx/generate-ssl-cert.sh:/docker-entrypoint.d/99-generate-ssl-cert.sh'
         depends_on:
-            - laravel.test
+            - ${APP_SERVICE:-laravel.test}
         networks:
             - sail

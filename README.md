@@ -28,6 +28,21 @@ php artisan sail-ssl:install
 
 After containers started, you can access https://localhost.
 
+## Environment variables
+- `SERVER_NAME`
+  - Determine `server_name` directive in nginx.conf
+  - Default: `localhost`
+- `APP_SERVICE`
+  - Specify Laravel container name in docker-compose.yml
+  - Default: `laravel.test`
+- `HTTP_PORT`
+  - Port to forward Nginx HTTP port
+  - By default, request for this port would redirect to `SSL_PORT`
+  - Default: `8000`
+- `SSL_PORT`
+  - Port to forward Nginx HTTPS port
+  - Default: `443`
+
 ## Configure Nginx
 `./nginx/templates/default.conf.template` will be published.
 ```sh

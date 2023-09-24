@@ -7,6 +7,7 @@
             - SSL_PORT=${SSL_PORT:-443}
             - APP_SERVICE=${APP_SERVICE:-laravel.test}
             - SERVER_NAME=${SERVER_NAME:-localhost}
+            - SSL_DOMAIN=${SSL_DOMAIN:-localhost}
         volumes:
             - 'sail-nginx:/etc/nginx/certs'
             - './vendor/ryoluo/sail-ssl/nginx/templates:/etc/nginx/templates'

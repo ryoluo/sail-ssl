@@ -42,6 +42,9 @@ After containers started, you can access https://localhost.
 - `SSL_PORT`
   - Port to forward Nginx HTTPS port
   - Default: `443`
+- `SSL_DOMAIN`
+    - The Common Name to use in the SSL certificate, e.g. `SSL_DOMAIN=*.mydomain.test`
+    - Default: `localhost`U
 
 ## Configure Nginx
 `./nginx/templates/default.conf.template` will be published.

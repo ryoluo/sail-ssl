@@ -44,7 +44,12 @@ After containers started, you can access https://localhost.
   - Default: `443`
 - `SSL_DOMAIN`
     - The Common Name to use in the SSL certificate, e.g. `SSL_DOMAIN=*.mydomain.test`
+    - Required to generate a valid certificate for a domain other than `localhost`
     - Default: `localhost`
+- `SSL_ALT_NAME`
+    - The Subject Alternative Name to use in the SSL certificate, e.g. `SSL_ALT_NAME=DNS:localhost,DNS:mydomain.test`
+    - Required to generate a valid certificate for a domain other than `localhost`
+    - Default: `DNS:localhost`
 
 ## Configure Nginx
 `./nginx/templates/default.conf.template` will be published.

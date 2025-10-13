@@ -24,9 +24,14 @@ class InstallCommand extends Command
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
-        $dockerCompose = file_get_contents($this->laravel->basePath('docker-compose.yml'));
+        $dockerComposePath = $this->laravel->basePath('docker-compose.yml');
+        if (!file_exists($dockerComposePath)) {
+            $dockerComposePath = $this->laravel->basePath('compose.yaml');
+        }
+
+        $dockerCompose = file_get_contents($dockerComposePath);
         if (str_contains($dockerCompose, 'nginx:')) {
             $this->info('Nginx container is already installed. Do nothing.');
             return;
@@ -39,7 +44,7 @@ class InstallCommand extends Command
             ["services:\n{$nginxStub}", "volumes:\n{$volumeStub}"],
             $dockerCompose
         );
-        file_put_contents($this->laravel->basePath('docker-compose.yml'), $dockerCompose);
+        file_put_contents($dockerComposePath, $dockerCompose);
         $this->info('Nginx container successfully installed in Docker Compose.');
     }
 }

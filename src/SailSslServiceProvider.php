@@ -14,7 +14,7 @@ class SailSslServiceProvider extends ServiceProvider implements DeferrableProvid
      *
      * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         $this->registerCommands();
         $this->configurePublishing();
@@ -25,7 +25,7 @@ class SailSslServiceProvider extends ServiceProvider implements DeferrableProvid
      *
      * @return void
      */
-    protected function registerCommands()
+    protected function registerCommands(): void
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
@@ -40,7 +40,7 @@ class SailSslServiceProvider extends ServiceProvider implements DeferrableProvid
      *
      * @return void
      */
-    protected function configurePublishing()
+    protected function configurePublishing(): void
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
@@ -54,7 +54,7 @@ class SailSslServiceProvider extends ServiceProvider implements DeferrableProvid
      *
      * @return array
      */
-    public function provides()
+    public function provides(): array
     {
         return [
             InstallCommand::class,

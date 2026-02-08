@@ -25,13 +25,22 @@ class PublishCommand extends Command
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
-        $dockerCompose = file_get_contents($this->laravel->basePath('docker-compose.yml'));
+        $dockerComposePath = $this->laravel->basePath('docker-compose.yml');
+        if (!file_exists($dockerComposePath)) {
+            $dockerComposePath = $this->laravel->basePath('compose.yaml');
+        }
+
+        $dockerCompose = file_get_contents($dockerComposePath);
         $this->call('vendor:publish', ['--tag' => 'sail-ssl']);
         file_put_contents(
-            $this->laravel->basePath('docker-compose.yml'),
-            str_replace('./vendor/ryoluo/sail-ssl/nginx/templates', './nginx/templates', $dockerCompose)
+            $dockerComposePath,
+            str_replace(
+                './vendor/ryoluo/sail-ssl/nginx/templates',
+                './nginx/templates',
+                $dockerCompose
+            )
         );
     }
 }

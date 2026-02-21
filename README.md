@@ -31,6 +31,28 @@ php artisan sail-ssl:install
 
 After containers started, you can access https://localhost.
 
+## Trust the certificate (optional)
+
+The plugin generates a local Root CA certificate to sign the server certificate.
+You can import the Root CA into your browser to remove the security warning.
+
+### 1. Copy the Root CA certificate to your host machine:
+
+```sh
+./vendor/bin/sail cp nginx:/etc/nginx/certs/root-ca.crt .
+```
+
+### 2. Import the certificate:
+
+-   **Chrome**: Settings > Privacy and Security > Security > Manage certificates > Authorities > Import
+-   **Firefox**: Settings > Privacy & Security > Security > View Certificates > Authorities > Import
+-   **macOS**: Double-click the `root-ca.crt` file to open Keychain Access, then set "Always Trust"
+
+> **Note:** If you change `SSL_DOMAIN` or `SSL_ALT_NAME`, remove the Docker volume `sail-nginx` to regenerate certificates:
+> ```sh
+> docker volume rm sail-nginx
+> ```
+
 ## Environment variables
 
 -   `SERVER_NAME`

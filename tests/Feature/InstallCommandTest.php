@@ -3,6 +3,7 @@
 namespace Ryoluo\SailSsl\Tests\Feature;
 
 use Ryoluo\SailSsl\Tests\TestCase;
+use Symfony\Component\Yaml\Yaml;
 
 class InstallCommandTest extends TestCase
 {
@@ -12,16 +13,19 @@ class InstallCommandTest extends TestCase
             ->expectsOutput('Nginx container successfully installed in Docker Compose.')
             ->assertSuccessful();
 
-        $dockerCompose = $this->app->basePath('docker-compose.yml');
-        if (!file_exists($dockerCompose)) {
-            $dockerCompose = $this->app->basePath('compose.yaml');
+        $dockerComposePath = $this->app->basePath('docker-compose.yml');
+        if (!file_exists($dockerComposePath)) {
+            $dockerComposePath = $this->app->basePath('compose.yaml');
         }
 
-        $dockerCompose = file_get_contents($dockerCompose);
-        $nginxStub = file_get_contents('stubs/nginx.stub');
-        $volumeStub = file_get_contents('stubs/volume.stub');
-        $this->assertTrue(str_contains($dockerCompose, $nginxStub));
-        $this->assertTrue(str_contains($dockerCompose, $volumeStub));
+        $dockerCompose = Yaml::parseFile($dockerComposePath);
+        $this->assertArrayHasKey('nginx', $dockerCompose['services']);
+        $this->assertEquals('nginx:latest', $dockerCompose['services']['nginx']['image']);
+        $this->assertContains('${HTTP_PORT:-8000}:80', $dockerCompose['services']['nginx']['ports']);
+        $this->assertContains('${SSL_PORT:-443}:443', $dockerCompose['services']['nginx']['ports']);
+        $this->assertContains('sail-nginx:/etc/nginx/certs', $dockerCompose['services']['nginx']['volumes']);
+        $this->assertArrayHasKey('sail-nginx', $dockerCompose['volumes']);
+        $this->assertEquals('local', $dockerCompose['volumes']['sail-nginx']['driver']);
     }
 
     public function test_throw_exception_when_docker_compose_yml_is_not_found()

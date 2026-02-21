@@ -3,6 +3,7 @@
 namespace Ryoluo\SailSsl\Console;
 
 use Illuminate\Console\Command;
+use Symfony\Component\Yaml\Yaml;
 
 class InstallCommand extends Command
 {
@@ -31,20 +32,46 @@ class InstallCommand extends Command
             $dockerComposePath = $this->laravel->basePath('compose.yaml');
         }
 
-        $dockerCompose = file_get_contents($dockerComposePath);
-        if (str_contains($dockerCompose, 'nginx:')) {
+        $dockerCompose = Yaml::parseFile($dockerComposePath);
+        if (isset($dockerCompose['services']['nginx'])) {
             $this->info('Nginx container is already installed. Do nothing.');
             return;
         }
 
-        $nginxStub = file_get_contents(__DIR__ . '/../../stubs/nginx.stub');
-        $volumeStub = file_get_contents(__DIR__ . '/../../stubs/volume.stub');
-        $dockerCompose = preg_replace(
-            ['/^services:/m', '/^volumes:/m'],
-            ["services:\n{$nginxStub}", "volumes:\n{$volumeStub}"],
-            $dockerCompose
-        );
-        file_put_contents($dockerComposePath, $dockerCompose);
+        $dockerCompose['services']['nginx'] = [
+            'image' => 'nginx:latest',
+            'ports' => [
+                '${HTTP_PORT:-8000}:80',
+                '${SSL_PORT:-443}:443',
+            ],
+            'environment' => [
+                'SSL_PORT=${SSL_PORT:-443}',
+                'APP_SERVICE=${APP_SERVICE:-laravel.test}',
+                'SERVER_NAME=${SERVER_NAME:-localhost}',
+                'SSL_DOMAIN=${SSL_DOMAIN:-localhost}',
+                'SSL_ALT_NAME=${SSL_ALT_NAME:-DNS:localhost}',
+            ],
+            'volumes' => [
+                'sail-nginx:/etc/nginx/certs',
+                './vendor/ryoluo/sail-ssl/nginx/templates:/etc/nginx/templates',
+                './vendor/ryoluo/sail-ssl/nginx/generate-ssl-cert.sh:/docker-entrypoint.d/99-generate-ssl-cert.sh',
+            ],
+            'depends_on' => [
+                '${APP_SERVICE:-laravel.test}',
+            ],
+            'networks' => [
+                'sail',
+            ],
+        ];
+
+        if (!isset($dockerCompose['volumes'])) {
+            $dockerCompose['volumes'] = [];
+        }
+        $dockerCompose['volumes']['sail-nginx'] = [
+            'driver' => 'local',
+        ];
+
+        file_put_contents($dockerComposePath, Yaml::dump($dockerCompose, 10, 4));
         $this->info('Nginx container successfully installed in Docker Compose.');
     }
 }

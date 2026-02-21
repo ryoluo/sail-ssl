@@ -30,7 +30,7 @@ class InstallCommandTest extends TestCase
 
     public function test_throw_exception_when_docker_compose_yml_is_not_found()
     {
-        $this->expectException(\ErrorException::class);
+        $this->expectException(\Symfony\Component\Yaml\Exception\ParseException::class);
         if (file_exists($this->app->basePath('docker-compose.yml'))) {
             unlink($this->app->basePath('docker-compose.yml'));
         } else if (file_exists($this->app->basePath('compose.yaml'))) {

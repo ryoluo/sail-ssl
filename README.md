@@ -31,6 +31,39 @@ php artisan sail-ssl:install
 
 After containers started, you can access https://localhost.
 
+## Update AppServiceProvider
+
+Since the application is behind an Nginx reverse proxy that handles SSL, Laravel needs to be configured to generate HTTPS URLs. Add `URL::forceScheme('https')` to your `AppServiceProvider`:
+
+```php
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Support\ServiceProvider;
+
+class AppServiceProvider extends ServiceProvider
+{
+    /**
+     * Register any application services.
+     */
+    public function register(): void
+    {
+        //
+    }
+
+    /**
+     * Bootstrap any application services.
+     */
+    public function boot(): void
+    {
+        \Illuminate\Support\Facades\URL::forceScheme('https');
+    }
+}
+```
+
+Without this setting, Laravel may generate HTTP URLs for assets, routes, etc., even though the site is served over HTTPS.
+
 ## Trust the certificate (optional)
 
 The plugin generates a local Root CA certificate to sign the server certificate.

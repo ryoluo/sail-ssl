@@ -5,39 +5,39 @@
 ![License](https://img.shields.io/github/license/ryoluo/sail-ssl)
 ![Test](https://img.shields.io/github/actions/workflow/status/ryoluo/sail-ssl/laravel.yml?branch=main&label=test)
 
-[Laravel Sail](https://github.com/laravel/sail) 環境で SSL（HTTPS）接続を簡単に有効化するプラグインです。Nginx リバースプロキシを利用して、自己署名証明書による HTTPS 通信をローカル開発環境で実現します。
+A [Laravel Sail](https://github.com/laravel/sail) plugin that enables SSL (HTTPS) for your local development environment using an Nginx reverse proxy with self-signed certificates.
 
-## 目次
+## Table of Contents
 
-- [概要](#概要)
-- [必要条件](#必要条件)
-- [インストール](#インストール)
-- [AppServiceProvider の設定](#appserviceprovider-の設定)
-- [証明書の信頼設定（任意）](#証明書の信頼設定任意)
-- [環境変数](#環境変数)
-- [Nginx 設定のカスタマイズ](#nginx-設定のカスタマイズ)
-- [トラブルシューティング](#トラブルシューティング)
-- [コントリビューション](#コントリビューション)
-- [ライセンス](#ライセンス)
+- [How It Works](#how-it-works)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Update AppServiceProvider](#update-appserviceprovider)
+- [Trust the Certificate (Optional)](#trust-the-certificate-optional)
+- [Environment Variables](#environment-variables)
+- [Customize Nginx Configuration](#customize-nginx-configuration)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [License](#license)
 
-## 概要
+## How It Works
 
-Sail-SSL は以下の仕組みでローカル開発環境に HTTPS を導入します。
+Sail-SSL adds an Nginx container to your Docker Compose setup that acts as an SSL-terminating reverse proxy:
 
 ```
-ブラウザ → https://localhost:443 → Nginx（SSL終端） → http://laravel.test → Laravel アプリ
+Browser → https://localhost:443 → Nginx (SSL termination) → http://laravel.test → Laravel App
 ```
 
-`sail-ssl:install` コマンドを実行すると、`docker-compose.yml` に Nginx コンテナが自動追加されます。コンテナ起動時に自己署名のルート CA 証明書とサーバー証明書が自動生成され、HTTPS でアクセスできるようになります。
+Running the `sail-ssl:install` command automatically adds an Nginx service to your `docker-compose.yml`. On container startup, a self-signed Root CA and server certificate are generated, enabling HTTPS access out of the box.
 
-## 必要条件
+## Requirements
 
-- [Laravel Sail](https://laravel.com/docs/sail) がセットアップ済みであること
-- Docker および Docker Compose が利用可能であること
+- [Laravel Sail](https://laravel.com/docs/sail) already set up in your project
+- Docker and Docker Compose installed
 
-## インストール
+## Installation
 
-### ローカルの PHP / Composer を使う場合
+### With Local PHP / Composer
 
 ```sh
 composer require ryoluo/sail-ssl --dev
@@ -45,7 +45,7 @@ php artisan sail-ssl:install
 ./vendor/bin/sail up
 ```
 
-### Sail コンテナを使う場合
+### With Sail Container
 
 ```sh
 ./vendor/bin/sail up -d
@@ -55,13 +55,13 @@ php artisan sail-ssl:install
 ./vendor/bin/sail up
 ```
 
-インストール後、コンテナが起動すると https://localhost でアクセスできます。
+Once the containers are running, you can access https://localhost.
 
-> **補足:** `sail-ssl:install` コマンドは `docker-compose.yml`（または `compose.yaml`）に Nginx サービスを追加します。すでに `nginx` サービスが存在する場合はスキップされます。
+> **Note:** The `sail-ssl:install` command adds an Nginx service to your `docker-compose.yml` (or `compose.yaml`). If an `nginx` service already exists, the command will be skipped.
 
-## AppServiceProvider の設定
+## Update AppServiceProvider
 
-Nginx リバースプロキシの背後で動作するため、Laravel が正しく HTTPS の URL を生成するよう設定が必要です。`AppServiceProvider` の `boot` メソッドに以下を追加してください。
+Since the application runs behind an Nginx reverse proxy that handles SSL, Laravel needs to be configured to generate HTTPS URLs. Add `URL::forceScheme('https')` to the `boot` method of your `AppServiceProvider`:
 
 ```php
 use Illuminate\Support\Facades\URL;
@@ -72,49 +72,49 @@ public function boot(): void
 }
 ```
 
-この設定がない場合、HTTPS でアクセスしていてもアセットやルートの URL が `http://` で生成されてしまいます。
+Without this setting, Laravel may generate HTTP URLs for assets, routes, etc., even though the site is served over HTTPS.
 
-## 証明書の信頼設定（任意）
+## Trust the Certificate (Optional)
 
-プラグインはローカルのルート CA 証明書を生成し、それを使ってサーバー証明書に署名します。ルート CA 証明書をブラウザや OS に登録すると、セキュリティ警告を表示せずにアクセスできます。
+The plugin generates a local Root CA certificate to sign the server certificate. You can import the Root CA into your browser or OS to remove the security warning.
 
-### 1. ルート CA 証明書をホストマシンにコピー
+### 1. Copy the Root CA certificate to your host machine
 
 ```sh
 ./vendor/bin/sail cp nginx:/etc/nginx/certs/root-ca.crt .
 ```
 
-### 2. 証明書をインポート
+### 2. Import the certificate
 
-| OS / ブラウザ | 手順 |
+| OS / Browser | Steps |
 |---|---|
-| **Chrome** | 設定 > プライバシーとセキュリティ > セキュリティ > 証明書の管理 > 認証局 > インポート |
-| **Firefox** | 設定 > プライバシーとセキュリティ > 証明書を表示 > 認証局 > インポート |
-| **macOS** | `root-ca.crt` をダブルクリックしてキーチェーンアクセスで開き、「常に信頼」に設定 |
-| **Windows** | `root-ca.crt` をダブルクリック > 証明書のインストール > 「信頼されたルート証明機関」に配置 |
+| **Chrome** | Settings > Privacy and Security > Security > Manage certificates > Authorities > Import |
+| **Firefox** | Settings > Privacy & Security > Security > View Certificates > Authorities > Import |
+| **macOS** | Double-click `root-ca.crt` to open Keychain Access, then set "Always Trust" |
+| **Windows** | Double-click `root-ca.crt` > Install Certificate > Place in "Trusted Root Certification Authorities" |
 
-> **注意:** `SSL_DOMAIN` や `SSL_ALT_NAME` を変更した場合は、Docker ボリュームを削除して証明書を再生成してください。
+> **Note:** If you change `SSL_DOMAIN` or `SSL_ALT_NAME`, remove the Docker volume to regenerate certificates:
 >
 > ```sh
 > docker volume rm sail-nginx
 > ```
 
-## 環境変数
+## Environment Variables
 
-`.env` ファイルで以下の環境変数を設定することで動作をカスタマイズできます。
+You can customize the behavior by setting the following environment variables in your `.env` file:
 
-| 変数名 | 説明 | デフォルト値 |
+| Variable | Description | Default |
 |---|---|---|
-| `SERVER_NAME` | Nginx の `server_name` ディレクティブに設定される値 | `localhost` |
-| `APP_SERVICE` | `docker-compose.yml` 内の Laravel コンテナのサービス名 | `laravel.test` |
-| `HTTP_PORT` | Nginx の HTTP ポート（このポートへのリクエストは `SSL_PORT` にリダイレクトされます） | `8000` |
-| `SSL_PORT` | Nginx の HTTPS ポート | `443` |
-| `SSL_DOMAIN` | SSL 証明書の Common Name（例: `*.mydomain.test`）。`localhost` 以外のドメインを使用する場合に設定 | `localhost` |
-| `SSL_ALT_NAME` | SSL 証明書の Subject Alternative Name（例: `DNS:localhost,DNS:mydomain.test`）。`localhost` 以外のドメインを使用する場合に設定 | `DNS:localhost` |
+| `SERVER_NAME` | Value for the `server_name` directive in nginx.conf | `localhost` |
+| `APP_SERVICE` | Laravel service name defined in docker-compose.yml | `laravel.test` |
+| `HTTP_PORT` | Nginx HTTP port (requests to this port are redirected to `SSL_PORT`) | `8000` |
+| `SSL_PORT` | Nginx HTTPS port | `443` |
+| `SSL_DOMAIN` | Common Name (CN) for the SSL certificate (e.g. `*.mydomain.test`). Set this when using a domain other than `localhost` | `localhost` |
+| `SSL_ALT_NAME` | Subject Alternative Name (SAN) for the SSL certificate (e.g. `DNS:localhost,DNS:mydomain.test`). Set this when using a domain other than `localhost` | `DNS:localhost` |
 
-### カスタムドメインの使用例
+### Custom Domain Example
 
-`mydomain.test` でアクセスしたい場合、`.env` に以下を追加します。
+To access your app via `mydomain.test`, add the following to your `.env`:
 
 ```env
 SERVER_NAME=mydomain.test
@@ -122,52 +122,52 @@ SSL_DOMAIN=mydomain.test
 SSL_ALT_NAME=DNS:mydomain.test,DNS:localhost
 ```
 
-また、`/etc/hosts`（macOS / Linux）または `C:\Windows\System32\drivers\etc\hosts`（Windows）に以下を追加してください。
+Then add an entry to your hosts file (`/etc/hosts` on macOS/Linux, `C:\Windows\System32\drivers\etc\hosts` on Windows):
 
 ```
 127.0.0.1 mydomain.test
 ```
 
-## Nginx 設定のカスタマイズ
+## Customize Nginx Configuration
 
-デフォルトの Nginx 設定テンプレートをプロジェクトにコピーして編集できます。
+You can publish the default Nginx configuration template to your project for customization:
 
 ```sh
 php artisan sail-ssl:publish
 ```
 
-このコマンドを実行すると、`./nginx/templates/default.conf.template` がプロジェクトルートに作成され、`docker-compose.yml` のボリュームマウントも自動的に更新されます。
+This copies `default.conf.template` to `./nginx/templates/` in your project root and automatically updates the volume mount in `docker-compose.yml`.
 
-テンプレートファイル内では `${SERVER_NAME}` や `${APP_SERVICE}` などの環境変数をそのまま使用できます。
+You can use environment variables such as `${SERVER_NAME}` and `${APP_SERVICE}` directly in the template file.
 
-## トラブルシューティング
+## Troubleshooting
 
-### ポートが競合する場合
+### Port Conflicts
 
-`SSL_PORT` や `HTTP_PORT` が他のサービスと競合する場合は、`.env` で変更できます。
+If `SSL_PORT` or `HTTP_PORT` conflicts with another service, change them in your `.env`:
 
 ```env
 HTTP_PORT=8080
 SSL_PORT=4443
 ```
 
-### 証明書を再生成したい場合
+### Regenerate Certificates
 
-Docker ボリュームを削除してコンテナを再起動してください。
+Remove the Docker volume and restart the containers:
 
 ```sh
 docker volume rm sail-nginx
 ./vendor/bin/sail up
 ```
 
-### アセットやリンクが HTTP で生成される場合
+### Assets or Links Generated with HTTP
 
-[AppServiceProvider の設定](#appserviceprovider-の設定) を確認してください。`URL::forceScheme('https')` が設定されていないと、HTTPS 環境でも HTTP の URL が生成されます。
+Make sure you have configured `URL::forceScheme('https')` in your `AppServiceProvider`. See [Update AppServiceProvider](#update-appserviceprovider) for details.
 
-## コントリビューション
+## Contributing
 
-プルリクエストは大歓迎です！バグ報告や機能リクエストは [Issues](https://github.com/ryoluo/sail-ssl/issues) からお願いします。
+Pull requests are welcome! For bug reports and feature requests, please open an [Issue](https://github.com/ryoluo/sail-ssl/issues).
 
-## ライセンス
+## License
 
 [MIT License](LICENSE)
